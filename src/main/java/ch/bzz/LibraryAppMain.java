@@ -1,14 +1,25 @@
 package ch.bzz;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class LibraryAppMain {
+
 
     private static final Book
             BOOK_1 = new Book(1, "978-3-8362-9544-4", "Java ist auch eine Insel", "Christian Ullenboom", 2023),
             BOOK_2 = new Book(2, "978-3-658-43573-8", "Grundkurs Java", "Dietmar Abts", 2024);
 
+    public static void main(String[] args) throws SQLException {
 
-    public static void main(String[] args) {
+        try (Connection con = DriverManager
+                .getConnection("jdbc:postgresql://localhost/localdb", "localuser", "")) {
+            // use con here
+        } catch (Error e) {
+            System.out.println(e);
+            return;
+        };
         System.out.println("HelloWorld");
         Scanner myObj = new Scanner(System.in);
         String command = "";
@@ -26,7 +37,7 @@ public class LibraryAppMain {
                 System.out.println("quit - Programm beenden");
                 System.out.println("help - Liste der Befehle anzeigen");
             }
-            else if (command.equals("listbooks")){
+            else if (command.equals("listBooks")){
                 System.out.println("Liste der Bücher:");
                 System.out.println(BOOK_1);
                 System.out.println(BOOK_2);
