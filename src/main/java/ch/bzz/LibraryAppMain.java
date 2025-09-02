@@ -1,7 +1,5 @@
 package ch.bzz;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Scanner;
 
 public class LibraryAppMain {
@@ -15,7 +13,25 @@ public class LibraryAppMain {
 
         try (Connection con = DriverManager
                 .getConnection("jdbc:postgresql://localhost/localdb", "localuser", "")) {
-            // use con here
+            try (Statement stmt = con.createStatement()) {
+                try (ResultSet resultSet = stmt.executeQuery("SELECT * FROM BOOKS")) {
+                    ResultSetMetaData metaData = resultSet.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+
+                    for (int i = 1; i <= columnCount; i++) {
+                        System.out.print(metaData.getColumnName(i) + "\t");
+                    }
+                    System.out.println();
+
+                    while (resultSet.next()) {
+                        for (int i = 1; i <= columnCount; i++) {
+                            System.out.print(resultSet.getString(i) + "\t");
+                        }
+                        System.out.println();
+                    }
+                }
+            }
+
         } catch (Error e) {
             System.out.println(e);
             return;
