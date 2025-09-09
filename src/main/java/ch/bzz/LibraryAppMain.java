@@ -100,11 +100,16 @@ public class LibraryAppMain {
              Connection connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
 
             String line;
-            List<Book> books = new ArrayList<>();
+            List<Books> books = new ArrayList<>();
+
+            // Skip the header line
+            if ((line = reader.readLine()) != null && line.contains("id")) {
+                System.out.println("Skipping header: " + line);
+            }
 
             while ((line = reader.readLine()) != null) {
                 String[] fields = line.split("\t");
-                if (fields.length != 5) {
+                if (fields.length != 3) { // Adjusted to match the table schema
                     System.out.println("Invalid line format: " + line);
                     continue;
                 }
@@ -112,22 +117,17 @@ public class LibraryAppMain {
                 int id = Integer.parseInt(fields[0]);
                 String isbn = fields[1];
                 String title = fields[2];
-                String author = fields[3];
-                int year = Integer.parseInt(fields[4]);
 
-                books.add(new Book(id, isbn, title, author, year));
+                books.add(new Books(id, isbn, title, null, 0)); // Pass null/0 for unused fields
             }
 
-            for (Book book : books) {
-                String sql = "INSERT INTO books (id, isbn, title, author, year) VALUES (?, ?, ?, ?, ?) " +
-                        "ON CONFLICT (id) DO UPDATE SET isbn = EXCLUDED.isbn, title = EXCLUDED.title, " +
-                        "author = EXCLUDED.author, year = EXCLUDED.year";
+            for (Books book : books) {
+                String sql = "INSERT INTO books (id, isbn, title) VALUES (?, ?, ?) " +
+                        "ON CONFLICT (id) DO UPDATE SET isbn = EXCLUDED.isbn, title = EXCLUDED.title";
                 try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
                     pstmt.setInt(1, book.getId());
                     pstmt.setString(2, book.getIsbn());
                     pstmt.setString(3, book.getTitle());
-                    pstmt.setString(4, book.getAuthor());
-                    pstmt.setInt(5, book.getYear());
                     pstmt.executeUpdate();
                 }
             }

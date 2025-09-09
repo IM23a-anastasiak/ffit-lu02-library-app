@@ -1,4 +1,5 @@
 package ch.bzz;
+
 public class Books {
     private int id;
     private String isbn;
@@ -12,16 +13,25 @@ public class Books {
         this.title = title;
         this.author = author;
         this.year = year;
-
     }
-    @Override
-    public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", isbn='" + isbn + '\'' +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", year=" + year +
-                '}';
+
+    public int getId() {
+        return id;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public int getYear() {
+        return year;
     }
 }
