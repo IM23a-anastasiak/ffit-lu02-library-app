@@ -100,16 +100,15 @@ public class LibraryAppMain {
              Connection connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
 
             String line;
-            List<Books> books = new ArrayList<>();
+            List<Book> books = new ArrayList<>();
 
-            // Skip the header line
-            if ((line = reader.readLine()) != null && line.contains("id")) {
+            if ((line = reader.readLine()) != null ) {
                 System.out.println("Skipping header: " + line);
             }
 
             while ((line = reader.readLine()) != null) {
                 String[] fields = line.split("\t");
-                if (fields.length != 3) { // Adjusted to match the table schema
+                if (fields.length != 5) { // Adjusted to match the table schema
                     System.out.println("Invalid line format: " + line);
                     continue;
                 }
@@ -117,17 +116,22 @@ public class LibraryAppMain {
                 int id = Integer.parseInt(fields[0]);
                 String isbn = fields[1];
                 String title = fields[2];
+                String author = fields[3];
+                int year = Integer.parseInt(fields[4]);
 
-                books.add(new Books(id, isbn, title, null, 0)); // Pass null/0 for unused fields
+                books.add(new Book(id, isbn, title, author, year)); // Pass null/0 for unused fields
             }
 
-            for (Books book : books) {
-                String sql = "INSERT INTO books (id, isbn, title) VALUES (?, ?, ?) " +
-                        "ON CONFLICT (id) DO UPDATE SET isbn = EXCLUDED.isbn, title = EXCLUDED.title";
+            for (Book book : books) {
+                String sql = "INSERT INTO books (id, isbn, title, author, publication_year) VALUES (?, ?, ?, ?, ?) " +
+                        "ON CONFLICT (id) DO UPDATE SET isbn = EXCLUDED.isbn, title = EXCLUDED.title," +
+                        "author = EXCLUDED.author, publication_year = EXCLUDED.publication_year";
                 try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
                     pstmt.setInt(1, book.getId());
                     pstmt.setString(2, book.getIsbn());
                     pstmt.setString(3, book.getTitle());
+                    pstmt.setString(4, book.getAuthor());
+                    pstmt.setInt(5, book.getYear());
                     pstmt.executeUpdate();
                 }
             }
@@ -140,33 +144,5 @@ public class LibraryAppMain {
     }
 }
 
-class Book {
-    private int id;
-    private String isbn;
-    private String title;
-    private String author;
-    private int year;
 
-    public Book(int id, String isbn, String title, String author, int year) {
-        this.id = id;
-        this.isbn = isbn;
-        this.title = title;
-        this.author = author;
-        this.year = year;
-    }
-    public int getId() {
-        return id;
-    }
-    public String getIsbn() {
-        return isbn;
-    }
-    public String getTitle() {
-        return title;
-    }
-    public String getAuthor() {
-        return author;
-    }
-    public int getYear() {
-        return year;
-    }
-}
+
